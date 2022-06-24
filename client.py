@@ -1,13 +1,14 @@
-# import required modules
+#================Import Modules===============#
 import socket
 import threading
 import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import messagebox
 
-HOST = '192.168.1.35'
+#================Host & Port===============# 
+HOST = '192.168.1.35'  
 PORT = 8080
-
+#===============Colors for GUI================#
 DARK_GREY = '#2F4550'
 MEDIUM_GREY = '#424951'
 OCEAN_BLUE = '#64A292'
@@ -21,16 +22,11 @@ SMALL_FONT = ("Helvetica", 13)
 # SOCK_STREAM: we are using TCP packets for communication
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def add_message(message):
-    message_box.config(state=tk.NORMAL)
-    message_box.insert(tk.END, message + '\n')
-    message_box.config(state=tk.DISABLED)
-
+#==============================Functions==============================#
+#================Connect Server===============#
 def connect():
-
     # try except block
     try:
-
         # Connect to the server
         client.connect((HOST, PORT))
         print("Successfully connected to server")
@@ -48,7 +44,14 @@ def connect():
 
     username_textbox.config(state=tk.DISABLED)
     username_button.config(state=tk.DISABLED)
-
+    
+#================ADD MESSAGE===============#
+def add_message(message):
+    message_box.config(state=tk.NORMAL)
+    message_box.insert(tk.END, message + '\n')
+    message_box.config(state=tk.DISABLED)
+    
+#================Send Message===============#
 def send_message():
     message = message_textbox.get()
     if message != '':
@@ -56,7 +59,8 @@ def send_message():
         message_textbox.delete(0, len(message))
     else:
         messagebox.showerror("Empty message", "Message cannot be empty")
-
+        
+#================ TKINTER ===============#
 root = tk.Tk()
 root.geometry("600x600")
 root.title("Chat Application📶")
@@ -94,24 +98,23 @@ message_box = scrolledtext.ScrolledText(middle_frame, font=SMALL_FONT, bg=MEDIUM
 message_box.config(state=tk.DISABLED)
 message_box.pack(side=tk.TOP)
 
-
+#================Listen for Incomming Message===============#
+"""
+The incomming message is encoded in utf-8 , which we need to decode to print in the tkinter box.
+"""
 def listen_for_messages_from_server(client):
-
     while 1:
-
         message = client.recv(2048).decode('utf-8')
         if message != '':
             username = message.split("~")[0]
             content = message.split('~')[1]
-
             add_message(f"[{username}] {content}")
             
         else:
             messagebox.showerror("Error", "Message recevied from client is empty")
 
-# main function
+#================ Main ===============#
 def main():
-
     root.mainloop()
     
 if __name__ == '__main__':
